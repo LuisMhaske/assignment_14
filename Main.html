@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Main Page</h1>
+        <h2>Current Stock Level</h2>
+        <table id="stock-table" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price per unit</th>
+                    <th>In Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically populated here -->
+            </tbody>
+        </table>
+        <h2 id="balance-heading">Current Account Balance</h2>
+        <p id="balance">Loading...</p>
+        <a href="purchase.html" class="btn btn-primary">Purchase Form</a>
+        <a href="sale.html" class="btn btn-primary">Sale Form</a>
+        <a href="balance.html" class="btn btn-primary">Balance Change Form</a>
+        <a href="history.html" class="btn btn-primary">History</a>
+    </div>
+
+    <script>
+        // Function to capitalize the first letter of each word in a string
+        function capitalizeFirstLetter(string) {
+            return string.replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // Fetch CSV data and populate the table
+        fetch('stock_data.csv')
+            .then(response => response.text())
+            .then(csvData => {
+                const rows = csvData.split('\n');
+
+                const tableBody = document.querySelector('#stock-table tbody');
+                rows.forEach(row => {
+                    const columns = row.split(',');
+                    const productName = capitalizeFirstLetter(columns[0].trim()); // Capitalize and trim the product name
+                    const pricePerunit = columns[1].trim();
+                    const stockLevel = columns[2].trim();
+
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${productName}</td>
+                        <td>${pricePerunit}</td>
+                        <td>${stockLevel}</td>
+
+                    `;
+
+                    tableBody.appendChild(newRow);
+                });
+            })
+            .catch(error => console.error('Error fetching CSV data:', error));
+
+        // Fetch account balance from text file
+        fetch('account_balance.txt')
+            .then(response => response.text())
+            .then(balance => {
+                const balanceElement = document.getElementById('balance');
+                balanceElement.textContent = `Account Balance: $${balance}`;
+                document.getElementById('balance-heading').style.display = 'block'; // Show balance heading once balance is loaded
+            })
+            .catch(error => console.error('Error fetching account balance:', error));
+    </script>
+</body>
+</html>
